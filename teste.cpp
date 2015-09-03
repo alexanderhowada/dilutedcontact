@@ -31,6 +31,7 @@ int main(int Nargs, char *Input[]){
  double *x = (double*)malloc(sizeof(double)*lol.Parameters.Get_size());
  x[0] = 6.0;
  lol.Set_Parameters(x);
+ free(x);x = NULL;
  lol.Set_InitialConditions();
  lol.Simulate();
  lol.PrintLattice(stdout);
