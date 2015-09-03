@@ -2,7 +2,7 @@
 #include<random>
 #include<mpi.h>
 #include<time.h>
-#include"_DilutedContact_.h"
+#include"_2DDilutedContact_.h"
 
 
 int main(int Nargs, char *Input[]){
@@ -26,12 +26,14 @@ int main(int Nargs, char *Input[]){
 	Seeds.Recv(0, 0);
  }
 
- _DilutedContact_ lol(Seeds[0], Seeds[1], Input[1], Input[2]);
- lol.NSimul = 100000000;
- lol.Parameters[0] = 0.1234;
+ _2DDilutedContact_ lol(Seeds[0], Seeds[1], Input[1], Input[2]);
+ _MPI_vector_<double> Param(lol.Parameters.Get_size());
+ double *x = (double*)malloc(sizeof(double)*lol.Parameters.Get_size());
+ x[0] = 6.0;
+ lol.Set_Parameters(x);
  lol.Set_InitialConditions();
  lol.Simulate();
- lol.Save_Simulation();
+ lol.PrintLattice(stdout);
 
  MPI_Finalize();
  return 0;
