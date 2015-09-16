@@ -3,15 +3,14 @@
 
 #include<iostream>
 #include<random>
-#include<unistd.h>
 #include<time.h>
 #include<math.h>
 #include<stdlib.h>
 #include<string.h>
-#include<stdint.h>
 
 #include"_MPI_vector_.h"
 #include"_SQLite_Database_.h"
+#include"SFMT.c"
 
 /*********************************
 	PARAMETERS
@@ -37,8 +36,9 @@ s_p4 - standard error of p4
 
 class _2DDilutedContact_{
 	private:
- std::mt19937 rand_32;
- std::mt19937_64 rand_64;
+// std::mt19937 rand_32;
+// std::mt19937_64 rand_64;
+ sfmt_t sfmt;
  std::uniform_real_distribution<double> dist;
  _SQLite_Database_ Save;
 
@@ -64,9 +64,9 @@ class _2DDilutedContact_{
 
  _2DDilutedContact_(void);
  _2DDilutedContact_(const char*, const char*);
- _2DDilutedContact_(unsigned long long, unsigned long long);
- _2DDilutedContact_(unsigned long long, unsigned long long, const char*, const char*);
- _2DDilutedContact_& Seed(unsigned long long, unsigned long long);
+ _2DDilutedContact_(uint32_t);
+ _2DDilutedContact_(uint32_t, const char*, const char*);
+ _2DDilutedContact_& Seed(uint32_t);
  _2DDilutedContact_& Set_Parameters(void);
  _2DDilutedContact_& Set_Parameters(double*);
  _2DDilutedContact_& Set_Parameters(_MPI_vector_<double>&);
@@ -94,7 +94,7 @@ _2DDilutedContact_::_2DDilutedContact_(void):
 	NSimul(1)
 {}
 
-_2DDilutedContact_::_2DDilutedContact_(unsigned long long seed32, unsigned long long seed64):
+_2DDilutedContact_::_2DDilutedContact_(uint32_t seed32):
 	dist(0.0, 1.0),
 	Save(),
 	Parameters(NParameters),
@@ -102,10 +102,10 @@ _2DDilutedContact_::_2DDilutedContact_(unsigned long long seed32, unsigned long 
 	Noccup(0),
 	NSimul(1)
 {
- this->Seed(seed32, seed64);
+ this->Seed(seed32);
 }
 
-_2DDilutedContact_::_2DDilutedContact_(unsigned long long seed32, unsigned long long seed64, const char* Database, const char* Table):
+_2DDilutedContact_::_2DDilutedContact_(uint32_t seed32, const char* Database, const char* Table):
 	dist(0.0, 1.0),
 	Save(Database, Table),
 	Parameters(NParameters),
@@ -113,7 +113,7 @@ _2DDilutedContact_::_2DDilutedContact_(unsigned long long seed32, unsigned long 
 	Noccup(0),
 	NSimul(1)
 {
- this->Seed(seed32, seed64);
+ this->Seed(seed32);
 }
 
 _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
@@ -125,9 +125,10 @@ _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
 	NSimul(1)
 {}
 
-_2DDilutedContact_& _2DDilutedContact_::Seed(unsigned long long seed32, unsigned long long seed64){
- rand_32.seed(seed32);
- rand_64.seed(seed64);
+_2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
+// rand_32.seed(seed32);
+// rand_64.seed(seed64);
+ sfmt_init_gen_rand(&sfmt, seed32);
  return *this;
 }
 
@@ -265,12 +266,12 @@ bool _2DDilutedContact_::Gen_PercConf(void){
  L_1 = L-1;
   
  while(NActive){
-	x = ActSit[ (rand = rand_64()%NActive*2 ) ];
+	x = ActSit[ (rand = sfmt_genrand_uint64(&sfmt)%NActive*2 ) ];
 	y = ActSit[rand +1];
 	if( Lattice[x][y] ){
 		//faz nada
 	}
-	else if(dist(rand_64) < p){
+	else if(sfmt_genrand_res53(&sfmt) < p){
 		Lattice[x][y] = 1;
 		Noccup++;
 		if( !(x&&y) || x == L_1 || y == L_1){
@@ -318,12 +319,12 @@ bool _2DDilutedContact_::Gen_PercConf(void){
  }
 
  while(NActive){
-	x = ActSit[ (rand = rand_64()%NActive*2) ];
+	x = ActSit[ (rand = sfmt_genrand_uint64(&sfmt)%NActive*2) ];
 	y = ActSit[rand +1];
 	if( Lattice[x][y] ){
 		//faz nada
 	}
-	else if(dist(rand_64) < p){
+	else if(sfmt_genrand_res53(&sfmt) < p){
 		Lattice[x][y] = 1;
 		Noccup++;
 		if(!Lattice[x][y == L_1 ? 0 : y+1]){

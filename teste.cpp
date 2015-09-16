@@ -4,7 +4,6 @@
 #include<time.h>
 #include"_2DDilutedContact_.h"
 
-
 int main(int Nargs, char *Input[]){
  int rank, size;
  MPI_Init(&Nargs, &Input);
@@ -12,7 +11,7 @@ int main(int Nargs, char *Input[]){
  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 // _2DDilutedContact_ Sisi(Input[1], Input[2]);
- _2DDilutedContact_ Sisi(time(NULL), time(NULL) +1);
+ _2DDilutedContact_ Sisi((unsigned long long) time(NULL));
  _MPI_vector_<double> Parameters( Sisi.Parameters.Get_size() );
 
  Parameters[0] = 5.0;
