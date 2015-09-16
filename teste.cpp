@@ -4,24 +4,43 @@
 #include<time.h>
 #include"_2DDilutedContact_.h"
 
+void master(int rank, int size, char *FileTable[]){
+
+ std::mt19937 SeedGen(time(NULL));
+ _MPI_vector_<unsigned int> Seeds(1);
+ for(int process = 1; process < size; process++){
+	Seeds[0] = SeedGen();
+	Seeds.Send(process, 0);
+ }
+
+ _2DDilutedContact_ Sim_Contr(FileTable[0], FileTable[1]);
+
+
+
+ printf("Exit 0\n");
+}
+
+void slave(int rank, int size){
+
+ _MPI_vector_<unsigned int> Seed(1);
+ Seed.Recv(0, 0);
+
+
+ printf("Exit %d\n", rank);
+}
+
 int main(int Nargs, char *Input[]){
  int rank, size;
  MPI_Init(&Nargs, &Input);
  MPI_Comm_size(MPI_COMM_WORLD, &size);
  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-// _2DDilutedContact_ Sisi(Input[1], Input[2]);
- _2DDilutedContact_ Sisi((unsigned long long) time(NULL));
- _MPI_vector_<double> Parameters( Sisi.Parameters.Get_size() );
-
- Parameters[0] = 5.0;
- Parameters[2] = 0.5;
-
- Sisi.Set_Parameters(Parameters);
- Sisi.Set_InitialConditions();
- while(!Sisi.Gen_PercConf()) Sisi.Set_InitialConditions();
- Sisi.PrintLattice(stdout);
- printf("%llu\n", Sisi.Noccup);
+ if(!rank){
+	master(rank, size, &Input[1]);
+ }
+ else{
+	slave(rank, size);
+ }
 
  MPI_Finalize();
  return 0;
