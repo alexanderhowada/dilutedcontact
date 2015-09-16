@@ -34,6 +34,13 @@ p4 - fourth moment of the order parameter
 s_p4 - standard error of p4
 *********************************/
 
+namespace _2DLattice_{
+ struct _2D_uint16_{
+	uint16_t x;
+	uint16_t y;
+ };
+}
+
 class _2DDilutedContact_{
 	private:
 // std::mt19937 rand_32;
@@ -46,7 +53,9 @@ class _2DDilutedContact_{
  static const unsigned int NResults = 7;
 
 
- uint16_t *ActSit = NULL;
+// uint16_t *ActSit = NULL;
+ _2DLattice_::_2D_uint16_ *ActSit = NULL;
+ typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
  unsigned long long ActSit_size = 0;
  unsigned long long NActive = 0;
  unsigned int L = 0;
@@ -137,11 +146,11 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 	for(unsigned int index = 0; index < L; index++){
 		memset(Lattice[index], 0, sizeof(int8_t)*L);
 	}
-	memset(ActSit, 0, sizeof(uint16_t)*ActSit_size);
+	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
 	return false;
  }
  this->L = L;
- ActSit_size = 8*L*L;
+ ActSit_size = 4*L*L;
 
  if(Lattice == NULL){
 	Lattice = (int8_t**)malloc(sizeof(int8_t*)*L);
@@ -157,7 +166,7 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 		}
 		memset(Lattice[index], 0, sizeof(int8_t)*L);
 	}
-	ActSit = (uint16_t*)calloc( ActSit_size, sizeof(uint16_t)*ActSit_size);
+	ActSit = (_2D_L_16_*)calloc( ActSit_size, sizeof(_2D_L_16_)*ActSit_size);
 	return true;
  }
 
@@ -174,7 +183,7 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 	}
 	memset(Lattice[index], 0, sizeof(int8_t)*L);
  }
- ActSit = (uint16_t*)realloc(ActSit, sizeof(uint16_t)*ActSit_size);
+ ActSit = (_2D_L_16_*)realloc(ActSit, sizeof(_2D_L_16_)*ActSit_size);
  if(ActSit == NULL){
 	fprintf(stderr, "Error reallocating ActSit\n");
 	exit(1);
@@ -229,23 +238,24 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
 _2DDilutedContact_& _2DDilutedContact_::Set_InitialConditions(void){
  Results = 0.0;
  for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
+ memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
  int ini = L/2;
  Lattice[ini][ini] = 1;
  if(NActive != 0){
 	fprintf(stderr, "Number of Active Sites in Set_InitialConditions is not 0\n");
 	exit(1);
  }
- ActSit[0]= ini;
- ActSit[1]= ini+1;
+ ActSit[0].x = ini;
+ ActSit[0].y = ini+1;
 
- ActSit[2]= ini+1;
- ActSit[3]= ini;
+ ActSit[1].x = ini+1;
+ ActSit[1].y = ini;
 
- ActSit[4]= ini-1;
- ActSit[5]= ini;
+ ActSit[2].x = ini-1;
+ ActSit[2].y = ini;
 
- ActSit[6]= ini;
- ActSit[7]= ini-1;
+ ActSit[3].x = ini;
+ ActSit[3].y = ini-1;
  
  Noccup = 1;
  NActive = 4;
@@ -266,8 +276,8 @@ bool _2DDilutedContact_::Gen_PercConf(void){
  L_1 = L-1;
   
  while(NActive){
-	x = ActSit[ (rand = sfmt_genrand_uint64(&sfmt)%NActive*2 ) ];
-	y = ActSit[rand +1];
+	x = ActSit[(rand = sfmt_genrand_uint64(&sfmt)%NActive)].x;
+	y = ActSit[rand].y;
 	if( Lattice[x][y] ){
 		//faz nada
 	}
@@ -277,50 +287,52 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 		if( !(x&&y) || x == L_1 || y == L_1){
 			result = 1;
                         if(!Lattice[x][(y+1)%L]){
-				ActSit[2*NActive] = x;
-				ActSit[2*NActive++ + 1] = (y+1)%L;
+				ActSit[NActive].x = x;
+				ActSit[NActive++].y = (y+1)%L;
                         }
                         if(!Lattice[x][(y+L-1)%L]){
-				ActSit[2*NActive] = x;
-				ActSit[2*NActive++ + 1] = (y+L-1)%L;
+				ActSit[NActive].x = x;
+				ActSit[NActive++].y = (y+L-1)%L;
                         }
                         if(!Lattice[(x+1)%L][y]){
-				ActSit[2*NActive] = (x+1)%L;
-				ActSit[2*NActive++ + 1] = y;
+				ActSit[NActive].x = (x+1)%L;
+				ActSit[NActive++].y = y;
                         }
                         if(!Lattice[(x+L-1)%L][y]){
-				ActSit[2*NActive] = (x+L-1)%L;
-				ActSit[2*NActive++ + 1] = y;
+				ActSit[NActive].x = (x+L-1)%L;
+				ActSit[NActive++].y = y;
                         }
-			memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
+			ActSit[rand] = ActSit[--NActive];
+//			memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
 			break;
 		}
 		if(!Lattice[x][y+1]){
-			ActSit[2*NActive] = x;
-			ActSit[2*NActive++ + 1] = y+1;
+			ActSit[NActive].x = x;
+			ActSit[NActive++].y = y+1;
 		}
 		if(!Lattice[x][y-1]){
-			ActSit[2*NActive] = x;
-			ActSit[2*NActive++ + 1] = y-1;
+			ActSit[NActive].x = x;
+			ActSit[NActive++].y = y-1;
 		}
 		if(!Lattice[x+1][y]){
-			ActSit[2*NActive] = x+1;
-			ActSit[2*NActive++ + 1] = y;
+			ActSit[NActive].x = x+1;
+			ActSit[NActive++].y = y;
 		}
 		if(!Lattice[x-1][y]){
-			ActSit[2*NActive] = x-1;
-			ActSit[2*NActive++ + 1] = y;
+			ActSit[NActive].x = x-1;
+			ActSit[NActive++].y = y;
 		}
 	}
 	else{
 		Lattice[x][y] = 2;
 	}
-	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
+	ActSit[rand] = ActSit[--NActive];
+//	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
  }
 
  while(NActive){
-	x = ActSit[ (rand = sfmt_genrand_uint64(&sfmt)%NActive*2) ];
-	y = ActSit[rand +1];
+	x = ActSit[(rand = sfmt_genrand_uint64(&sfmt)%NActive)].x;
+	y = ActSit[rand].y;
 	if( Lattice[x][y] ){
 		//faz nada
 	}
@@ -328,26 +340,27 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 		Lattice[x][y] = 1;
 		Noccup++;
 		if(!Lattice[x][y == L_1 ? 0 : y+1]){
-			ActSit[2*NActive] = x;
-			ActSit[2*NActive++ + 1] = y == L_1 ? 0 : y+1;
+			ActSit[NActive].x = x;
+			ActSit[NActive++].y = y == L_1 ? 0 : y+1;
 		}
 		if(!Lattice[x][y == 0 ? L_1 : y-1]){
-			ActSit[2*NActive] = x;
-			ActSit[2*NActive++ + 1] = y == 0 ? L_1 : y-1;
+			ActSit[NActive].x = x;
+			ActSit[NActive++].y = y == 0 ? L_1 : y-1;
 		}
 		if(!Lattice[x == L_1 ? 0 : x+1][y]){
-			ActSit[2*NActive] = x == L_1 ? 0 : x+1;
-			ActSit[2*NActive++ + 1] = y;
+			ActSit[NActive].x = x == L_1 ? 0 : x+1;
+			ActSit[NActive++].y = y;
 		}
 		if(!Lattice[x == 0 ? L_1 : x-1][y]){
-			ActSit[2*NActive] = x == 0 ? L_1 : x-1;
-			ActSit[2*NActive++ + 1] = y;
+			ActSit[NActive].x = x == 0 ? L_1 : x-1;
+			ActSit[NActive++].y = y;
 		}
 	}
 	else{
 		Lattice[x][y] = 2;
 	}
-	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
+	ActSit[rand] = ActSit[--NActive];
+//	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
  }
  return result;
 }
