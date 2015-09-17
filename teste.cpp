@@ -15,9 +15,10 @@ void master(int rank, int size, char *FileTable[]){
 
  _2DDilutedContact_ Sim_Contr(FileTable[0], FileTable[1]);
  sscanf(FileTable[2], "%lf", &Sim_Contr.Parameters[0]);
+ sscanf(FileTable[3], "%lf", &Sim_Contr.Parameters[2]);
 // Sim_Contr.Parameters.Print(stdout, "%lf", " ");fflush(stdout);
 // Sim_Contr.Parameters[0] = 2048.0;
- Sim_Contr.Parameters[2] = 0.5;
+// Sim_Contr.Parameters[2] = 0.5;
 
  for(int process = 1; process < size; process++){
 	Sim_Contr.Parameters.Send(process, 0);
