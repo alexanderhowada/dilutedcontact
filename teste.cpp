@@ -60,7 +60,7 @@ void slave(int rank, int size){
 	Simul.Results.Send(0, 0);
 	Simul.Parameters.Recv(0, 0);
  }
- printf("Exit %d\n", rank);
+// printf("Exit %d\n", rank);
 }
 
 int main(int Nargs, char *Input[]){
