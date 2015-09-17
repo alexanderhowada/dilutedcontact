@@ -37,7 +37,7 @@ void master(int rank, int size, char *FileTable[]){
 	Sim_Contr.Parameters.Send(Sim_Contr.Results.Status.MPI_SOURCE, Sim_Contr.Results.Status.MPI_TAG);
  }
  printf("%le\n", double(MNoccup)/double(NMeans)/Sim_Contr.Parameters[0]/Sim_Contr.Parameters[0]);
- printf("Exit 0\n");
+// printf("Exit 0\n");
 }
 
 void slave(int rank, int size){
