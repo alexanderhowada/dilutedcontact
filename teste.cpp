@@ -17,14 +17,14 @@ void master(int rank, int size, char *FileTable[]){
  sscanf(FileTable[2], "%lf", &Sim_Contr.Parameters[0]);
 // Sim_Contr.Parameters.Print(stdout, "%lf", " ");fflush(stdout);
 // Sim_Contr.Parameters[0] = 2048.0;
- Sim_Contr.Parameters[2] = 0.8;
+ Sim_Contr.Parameters[2] = 0.5;
 
  for(int process = 1; process < size; process++){
 	Sim_Contr.Parameters.Send(process, 0);
  }
 
  unsigned long long MNoccup = 0;
- const unsigned int NMeans = 1000;
+ const unsigned int NMeans = 500;
  for(unsigned int Nsimul = 0; Nsimul < NMeans - size + 1; Nsimul++){
 	Sim_Contr.Results.SleepRecvAny();
 	MNoccup += Sim_Contr.Results[0];
@@ -45,10 +45,10 @@ void slave(int rank, int size){
  _MPI_vector_<unsigned int> Seed(1);
  Seed.Recv(0, 0);
  _2DDilutedContact_ Simul(Seed[0]);
- time_t t1, t2;
+// time_t t1, t2;
  Simul.Parameters.Recv(0, 0);
- const unsigned int Ntimes = 1000;
- while(Simul.Parameters[2] < 1.0 && Simul.Parameters[2] >= 0.0){t1 = time(NULL);
+ const unsigned int Ntimes = 2000;
+ while(Simul.Parameters[2] < 1.0 && Simul.Parameters[2] >= 0.0){
 	unsigned long long Means = 0;
 	for(unsigned int times = 0; times < Ntimes; times++){
 		Simul.Set_Parameters();
@@ -58,7 +58,7 @@ void slave(int rank, int size){
 	}
 	Simul.Results[0] = double(Means)/double(Ntimes);
 	Simul.Results.Send(0, 0);
-	Simul.Parameters.Recv(0, 0);t2 = time(NULL);printf("%lf\n", difftime(t2, t1));
+	Simul.Parameters.Recv(0, 0);
  }
  printf("Exit %d\n", rank);
 }
