@@ -14,9 +14,29 @@ void master(int rank, int size, char *FileTable[]){
  }
 
  _2DDilutedContact_ Sim_Contr(FileTable[0], FileTable[1]);
+ sscanf(FileTable[2], "%lf", &Sim_Contr.Parameters[0]);
+// Sim_Contr.Parameters.Print(stdout, "%lf", " ");fflush(stdout);
+// Sim_Contr.Parameters[0] = 2048.0;
+ Sim_Contr.Parameters[2] = 0.8;
 
+ for(int process = 1; process < size; process++){
+	Sim_Contr.Parameters.Send(process, 0);
+ }
 
-
+ unsigned long long MNoccup = 0;
+ const unsigned int NMeans = 1000;
+ for(unsigned int Nsimul = 0; Nsimul < NMeans - size + 1; Nsimul++){
+	Sim_Contr.Results.SleepRecvAny();
+	MNoccup += Sim_Contr.Results[0];
+	Sim_Contr.Parameters.Send(Sim_Contr.Results.Status.MPI_SOURCE, Sim_Contr.Results.Status.MPI_TAG);
+ }
+ Sim_Contr.Parameters[2] = 4.0;
+ for(int process = 1; process < size; process++){
+	Sim_Contr.Results.SleepRecvAny();
+	MNoccup += Sim_Contr.Results[0];
+	Sim_Contr.Parameters.Send(Sim_Contr.Results.Status.MPI_SOURCE, Sim_Contr.Results.Status.MPI_TAG);
+ }
+ printf("%le\n", double(MNoccup)/double(NMeans)/Sim_Contr.Parameters[0]/Sim_Contr.Parameters[0]);
  printf("Exit 0\n");
 }
 
@@ -24,8 +44,22 @@ void slave(int rank, int size){
 
  _MPI_vector_<unsigned int> Seed(1);
  Seed.Recv(0, 0);
-
-
+ _2DDilutedContact_ Simul(Seed[0]);
+ time_t t1, t2;
+ Simul.Parameters.Recv(0, 0);
+ const unsigned int Ntimes = 1000;
+ while(Simul.Parameters[2] < 1.0 && Simul.Parameters[2] >= 0.0){t1 = time(NULL);
+	unsigned long long Means = 0;
+	for(unsigned int times = 0; times < Ntimes; times++){
+		Simul.Set_Parameters();
+		Simul.Set_InitialConditions();
+		Simul.Gen_PercConf();
+		Means += Simul.Noccup;
+	}
+	Simul.Results[0] = double(Means)/double(Ntimes);
+	Simul.Results.Send(0, 0);
+	Simul.Parameters.Recv(0, 0);t2 = time(NULL);printf("%lf\n", difftime(t2, t1));
+ }
  printf("Exit %d\n", rank);
 }
 
@@ -46,37 +80,3 @@ int main(int Nargs, char *Input[]){
  return 0;
 }
 
-//int main(int Nargs, char *Input[]){
-// int rank, size;
-// MPI_Init(&Nargs, &Input);
-// MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-// MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-// _MPI_vector_<unsigned long long> Seeds(2);
-// if(rank == 0){
-//	std::mt19937_64 seeds(time(NULL));
-//	for(int Process = 1; Process < size; Process++){
-//		Seeds[0] = seeds();
-//		Seeds[1] = seeds();
-//		Seeds.Send(Process, 0);
-//	}
-//	Seeds[0] = seeds();
-//	Seeds[1] = seeds();
-// }
-// else{
-//	Seeds.Recv(0, 0);
-// }
-
-// _2DDilutedContact_ lol(Seeds[0], Seeds[1], Input[1], Input[2]);
-// _MPI_vector_<double> Param(lol.Parameters.Get_size());
-// double *x = (double*)malloc(sizeof(double)*lol.Parameters.Get_size());
-// x[0] = 6.0;
-// lol.Set_Parameters(x);
-// free(x);x = NULL;
-// lol.Set_InitialConditions();
-// lol.Simulate();
-// lol.PrintLattice(stdout);
-
-// MPI_Finalize();
-// return 0;
-//}

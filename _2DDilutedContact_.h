@@ -142,11 +142,12 @@ _2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
 }
 
 bool _2DDilutedContact_::Allocate(unsigned int L){
+ assert(L > 4 && "L is to small\n");
  if(this->L == L){
-	for(unsigned int index = 0; index < L; index++){
-		memset(Lattice[index], 0, sizeof(int8_t)*L);
-	}
-	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
+//	for(unsigned int index = 0; index < L; index++){
+//		memset(Lattice[index], 0, sizeof(int8_t)*L);
+//	}
+//	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
 	return false;
  }
  this->L = L;
@@ -166,10 +167,9 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 		}
 		memset(Lattice[index], 0, sizeof(int8_t)*L);
 	}
-	ActSit = (_2D_L_16_*)calloc( ActSit_size, sizeof(_2D_L_16_)*ActSit_size);
+	ActSit = (_2D_L_16_*)calloc( ActSit_size, sizeof(_2D_L_16_));
 	return true;
  }
-
  Lattice = (int8_t**)realloc(Lattice, sizeof(int8_t*)*L);
  if(Lattice == NULL){
 	fprintf(stderr, "Error reallocating Lattice\n");
@@ -209,13 +209,13 @@ _2DDilutedContact_::~_2DDilutedContact_(void){
 
 *************************************/
 _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(void){
- Allocate(int(Parameters[0]));
+ Allocate(unsigned(Parameters[0]));
  return *this;
 }
 
 _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(double *Param){
  Parameters = Param;
- Allocate(int(Parameters[0]));
+ Allocate(unsigned(Parameters[0]));
  return *this;
 }
 
@@ -224,7 +224,7 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
 	fprintf(stderr, "Parameters does not have the same size in Set_Parameters\n");
  }
  Parameters = Param;
- Allocate(int(Parameters[0]));
+ Allocate(unsigned(Parameters[0]));
  return *this;
 }
 
@@ -303,7 +303,6 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 				ActSit[NActive++].y = y;
                         }
 			ActSit[rand] = ActSit[--NActive];
-//			memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
 			break;
 		}
 		if(!Lattice[x][y+1]){
@@ -327,7 +326,6 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 		Lattice[x][y] = 2;
 	}
 	ActSit[rand] = ActSit[--NActive];
-//	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
  }
 
  while(NActive){
@@ -360,8 +358,8 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 		Lattice[x][y] = 2;
 	}
 	ActSit[rand] = ActSit[--NActive];
-//	memcpy(&ActSit[rand], &ActSit[2*--NActive], 4);
  }
+ Results[0] = Noccup;
  return result;
 }
 
