@@ -25,7 +25,7 @@ void master(int rank, int size, char *FileTable[]){
  }
 
  long double MNoccup = 0.0;
- const unsigned int NMeans = 10000;
+ const unsigned int NMeans = 100000;
  for(unsigned int Nsimul = 0; Nsimul < NMeans - size + 1; Nsimul++){
 	Sim_Contr.Results.SleepRecvAny();
 	MNoccup += Sim_Contr.Results[0];
