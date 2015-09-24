@@ -8,6 +8,7 @@
 #include<stdlib.h>
 #include<string.h>
 
+#include"_Generic_Simulation_.h"
 #include"_MPI_vector_.h"
 #include"_SQLite_Database_.h"
 #include"SFMT.c"
@@ -41,24 +42,20 @@ namespace _2DLattice_{
  };
 }
 
-class _2DDilutedContact_{
+class _2DDilutedContact_: public _Generic_Simulation_ {
 	private:
-// std::mt19937 rand_32;
-// std::mt19937_64 rand_64;
  sfmt_t sfmt;
- std::uniform_real_distribution<double> dist;
- _SQLite_Database_ Save;
 
  static const unsigned int NParameters = 6;
  static const unsigned int NResults = 7;
 
-
-// uint16_t *ActSit = NULL;
  _2DLattice_::_2D_uint16_ *ActSit = NULL;
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
  unsigned long long ActSit_size = 0;
  unsigned long long NActive = 0;
  unsigned int L = 0;
+
+ _SQLite_Database_ Save;
 
  bool Allocate(unsigned int);
 
@@ -66,8 +63,8 @@ class _2DDilutedContact_{
  _MPI_vector_<double> Parameters, Results;
 
  int8_t **Lattice = NULL;
- unsigned long long Noccup;
- unsigned long long NSimul;
+ unsigned long long Noccup = 0;
+ unsigned long long NSimul = 1;
  
  ~_2DDilutedContact_(void);
 
@@ -95,48 +92,34 @@ class _2DDilutedContact_{
 *************************************/
 
 _2DDilutedContact_::_2DDilutedContact_(void):
-	dist(0.0, 1.0),
 	Save(),
 	Parameters(NParameters),
-	Results(NResults),
-	Noccup(0),
-	NSimul(1)
+	Results(NResults)
 {}
 
 _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32):
-	dist(0.0, 1.0),
 	Save(),
 	Parameters(NParameters),
-	Results(NResults),
-	Noccup(0),
-	NSimul(1)
+	Results(NResults)
 {
  this->Seed(seed32);
 }
 
 _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32, const char* Database, const char* Table):
-	dist(0.0, 1.0),
 	Save(Database, Table),
 	Parameters(NParameters),
-	Results(NResults),
-	Noccup(0),
-	NSimul(1)
+	Results(NResults)
 {
  this->Seed(seed32);
 }
 
 _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
-	dist(0.0, 1.0),
 	Save(Database, Table),
 	Parameters(NParameters),
-	Results(NResults),
-	Noccup(0),
-	NSimul(1)
+	Results(NResults)
 {}
 
 _2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
-// rand_32.seed(seed32);
-// rand_64.seed(seed64);
  sfmt_init_gen_rand(&sfmt, seed32);
  return *this;
 }
@@ -144,13 +127,9 @@ _2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
 bool _2DDilutedContact_::Allocate(unsigned int L){
  assert(L > 4 && "L is to small\n");
  if(this->L == L){
-//	for(unsigned int index = 0; index < L; index++){
-//		memset(Lattice[index], 0, sizeof(int8_t)*L);
-//	}
-//	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
 	return false;
  }
- this->L = L;
+// this->L = L;
  ActSit_size = 4*L*L;
 
  if(Lattice == NULL){
@@ -168,8 +147,11 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 		memset(Lattice[index], 0, sizeof(int8_t)*L);
 	}
 	ActSit = (_2D_L_16_*)calloc( ActSit_size, sizeof(_2D_L_16_));
+	this->L = L;
 	return true;
  }
+ for(unsigned int index = this->L; index < L; index++) free(Lattice[index]);
+ this->L = L;
  Lattice = (int8_t**)realloc(Lattice, sizeof(int8_t*)*L);
  if(Lattice == NULL){
 	fprintf(stderr, "Error reallocating Lattice\n");
@@ -262,8 +244,22 @@ _2DDilutedContact_& _2DDilutedContact_::Set_InitialConditions(void){
  return *this;
 }
 
+
+/*********************************
+	PARAMETERS
+L            - Lattice size
+\lambda      - infection rate
+p            - ocupation probability
+t_init       - initial time to start making termal means
+NTermalMeans - number of termal means
+tau          - time interval between means
+
+*********************************/
+
 _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
  printf("Simulating...\n");
+
+// double p = Parameters[1];
  return *this;
 }
 
