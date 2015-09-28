@@ -241,6 +241,8 @@ _2DDilutedContact_& _2DDilutedContact_::Set_InitialConditions(void){
  
  Noccup = 1;
  NActive = 4;
+
+ Gen_PercConf();
  return *this;
 }
 

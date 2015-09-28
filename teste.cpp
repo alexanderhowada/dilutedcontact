@@ -25,7 +25,7 @@ void master(int rank, int size, char *FileTable[]){
  }
 
  long double MNoccup = 0.0;
- const unsigned int NMeans = 1000;
+ const unsigned int NMeans = 10000;
  for(unsigned int Nsimul = 0; Nsimul < NMeans - size + 1; Nsimul++){
 	Sim_Contr.Results.SleepRecvAny();
 	MNoccup += Sim_Contr.Results[0];
@@ -48,13 +48,13 @@ void slave(int rank, int size){
  _2DDilutedContact_ Simul(Seed[0]);
 // time_t t1, t2;
  Simul.Parameters.Recv(0, 0);
- const unsigned int Ntimes = 1000;
+ const unsigned int Ntimes = 10000;
  while(Simul.Parameters[2] < 1.0 && Simul.Parameters[2] >= 0.0){
 	unsigned long long Means = 0;
 	for(unsigned int times = 0; times < Ntimes; times++){
 		Simul.Set_Parameters();
 		Simul.Set_InitialConditions();
-		Simul.Gen_PercConf();
+//		Simul.Gen_PercConf();
 		Means += Simul.Noccup;
 	}
 	Simul.Results[0] = double(Means)/double(Ntimes);
