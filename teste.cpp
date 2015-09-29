@@ -6,7 +6,7 @@
 
 void master(int rank, int size, char *FileTable[]){
 
- std::mt19937 SeedGen(time(NULL));
+ std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seeds(1);
  for(int process = 1; process < size; process++){
 	Seeds[0] = SeedGen();
