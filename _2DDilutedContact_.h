@@ -11,7 +11,11 @@
 #include"_Generic_Simulation_.h"
 #include"_MPI_vector_.h"
 #include"_SQLite_Database_.h"
+
+#ifndef _SFMT_C_
+#define _SFMT_C_
 #include"SFMT.c"
+#endif
 
 /*********************************
 	PARAMETERS
@@ -33,6 +37,8 @@ p2 - second moment of the order parameter
 s_p2 standard error of the order parameter
 R - mean radius
 sR - standard error of the mean radius
+S - survival probability
+Noccup - mean radius
 *********************************/
 
 namespace _2DLattice_{
@@ -47,7 +53,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  sfmt_t sfmt;
 
  static const unsigned int NParameters = 6;
- static const unsigned int NResults = 7;
+ static const unsigned int NResults = 9;
 
  _2DLattice_::_2D_uint16_ *ActSit = NULL;
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
@@ -369,7 +375,7 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 	}
 	ActSit[rand] = ActSit[--NActive];
  }
- Results[0] = Noccup;
+ Results[7] = Noccup;
  return result;
 }
 
