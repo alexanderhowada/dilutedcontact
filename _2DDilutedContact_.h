@@ -31,8 +31,8 @@ p1 - order parameter (density of infected sites)
 s_p1 - standard error of the order parameters
 p2 - second moment of the order parameter
 s_p2 standard error of the order parameter
-p4 - fourth moment of the order parameter
-s_p4 - standard error of p4
+R - mean radius
+sR - standard error of the mean radius
 *********************************/
 
 namespace _2DLattice_{
@@ -76,7 +76,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  _2DDilutedContact_& Set_Parameters(void);
  _2DDilutedContact_& Set_Parameters(double*);
  _2DDilutedContact_& Set_Parameters(_MPI_vector_<double>&);
- _2DDilutedContact_& Set_InitialConditions(void);
+ bool Set_InitialConditions(void);
  _2DDilutedContact_& Simulate(void);
  bool Gen_PercConf(void);
  _2DDilutedContact_& PrintLattice(FILE*);
@@ -95,7 +95,10 @@ _2DDilutedContact_::_2DDilutedContact_(void):
 	Save(),
 	Parameters(NParameters),
 	Results(NResults)
-{}
+{
+ P2_Param = +Parameters;
+ P2_Res = +Results;
+}
 
 _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32):
 	Save(),
@@ -103,6 +106,8 @@ _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32):
 	Results(NResults)
 {
  this->Seed(seed32);
+ P2_Param = +Parameters;
+ P2_Res = +Results;
 }
 
 _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32, const char* Database, const char* Table):
@@ -111,16 +116,23 @@ _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32, const char* Database, co
 	Results(NResults)
 {
  this->Seed(seed32);
+ P2_Param = +Parameters;
+ P2_Res = +Results;
 }
 
 _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
 	Save(Database, Table),
 	Parameters(NParameters),
 	Results(NResults)
-{}
+{
+ P2_Param = +Parameters;
+ P2_Res = +Results;
+}
 
 _2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
  sfmt_init_gen_rand(&sfmt, seed32);
+ P2_Param = +Parameters;
+ P2_Res = +Results;
  return *this;
 }
 
@@ -150,7 +162,7 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 	this->L = L;
 	return true;
  }
- for(unsigned int index = this->L; index < L; index++) free(Lattice[index]);
+ for(unsigned int index = 0; index < this->L; index++) free(Lattice[index]);
  this->L = L;
  Lattice = (int8_t**)realloc(Lattice, sizeof(int8_t*)*L);
  if(Lattice == NULL){
@@ -158,12 +170,12 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 	exit(1);
  }
  for(unsigned int index = 0; index < L; index++){
-	Lattice[index] = (int8_t*)realloc(Lattice[index], sizeof(int8_t)*L);
+	Lattice[index] = (int8_t*)calloc(L, sizeof(int8_t));
 	if(Lattice[index] == NULL){
 		fprintf(stderr, "Error reallocating Lattice\n");
 		exit(1);
 	}
-	memset(Lattice[index], 0, sizeof(int8_t)*L);
+//	memset(Lattice[index], 0, sizeof(int8_t)*L);
  }
  ActSit = (_2D_L_16_*)realloc(ActSit, sizeof(_2D_L_16_)*ActSit_size);
  if(ActSit == NULL){
@@ -217,7 +229,7 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
 
 *************************************/
 
-_2DDilutedContact_& _2DDilutedContact_::Set_InitialConditions(void){
+bool _2DDilutedContact_::Set_InitialConditions(void){
  Results = 0.0;
  for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
  memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
@@ -242,8 +254,8 @@ _2DDilutedContact_& _2DDilutedContact_::Set_InitialConditions(void){
  Noccup = 1;
  NActive = 4;
 
- Gen_PercConf();
- return *this;
+ bool Percolate = Gen_PercConf();
+ return Percolate;
 }
 
 
