@@ -59,12 +59,15 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
  unsigned long long ActSit_size = 0;
  unsigned long long NActive = 0;
+ unsigned long long R2 = 0;
  unsigned int L = 0;
+ double T = 0.0;
 
  _SQLite_Database_ Save;
 
  bool Allocate(unsigned int);
-
+ inline uint16_t LowerP(uint16_t);
+ inline uint16_t UpperP(uint16_t);
 	public:
  _MPI_vector_<double> Parameters, Results;
 
@@ -88,7 +91,6 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  _2DDilutedContact_& PrintLattice(FILE*);
  _2DDilutedContact_& Save_Simulation(void);
  
-
 };
 
 /*************************************
@@ -181,7 +183,6 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 		fprintf(stderr, "Error reallocating Lattice\n");
 		exit(1);
 	}
-//	memset(Lattice[index], 0, sizeof(int8_t)*L);
  }
  ActSit = (_2D_L_16_*)realloc(ActSit, sizeof(_2D_L_16_)*ActSit_size);
  if(ActSit == NULL){
@@ -241,10 +242,7 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
  memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
  int ini = L/2;
  Lattice[ini][ini] = 1;
- if(NActive != 0){
-	fprintf(stderr, "Number of Active Sites in Set_InitialConditions is not 0\n");
-	exit(1);
- }
+
  ActSit[0].x = ini;
  ActSit[0].y = ini+1;
 
@@ -261,6 +259,20 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
  NActive = 4;
 
  bool Percolate = Gen_PercConf();
+ 
+ assert(NActive == 0);
+
+ for(unsigned int x = 0; x < L; x++){
+	for(unsigned int y = 0; y < L; y++){
+		if(Lattice[x][y] == 1) Lattice[x][y] = 0;
+	}
+ }
+ Lattice[ini][ini] = 1;
+ NActive = 1;
+ ActSit[0].x = ini;
+ ActSit[0].y = ini;
+ T = 0.0;
+ R2 = 0;
  return Percolate;
 }
 
@@ -276,12 +288,93 @@ tau          - time interval between means
 
 *********************************/
 
-_2DDilutedContact_& _2DDilutedContact_::Simulate(void){
- printf("Simulating...\n");
 
-// double p = Parameters[1];
+inline uint16_t _2DDilutedContact_::LowerP(uint16_t x){
+ return x > L ? L-1 : x;
+}
+inline uint16_t _2DDilutedContact_::UpperP(uint16_t x){
+ return x == L ? 0 : x;
+}
+
+_2DDilutedContact_& _2DDilutedContact_::Simulate(void){
+
+ double Infec_P = Parameters[1]/(1.0 + Parameters[1]);
+ uint64_t temp;
+
+ while(T < Parameters[3] && NActive){
+	T += 1.0/NActive;
+	temp = sfmt_genrand_uint64(&sfmt);
+	if(sfmt_genrand_res53(&sfmt) < Infec_P){
+		temp = sfmt_genrand_uint64(&sfmt);
+		switch( temp%4 ){
+			case 0:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[LowerP(ActSit[temp].x-1)][ActSit[temp].y] == 0){
+					Lattice[LowerP(ActSit[temp].x-1)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = LowerP(ActSit[temp].x-1);
+					ActSit[NActive++].y = ActSit[temp].y;
+				}
+				break;
+			case 1:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[UpperP(ActSit[temp].x+1)][ActSit[temp].y] == 0){
+					Lattice[UpperP(ActSit[temp].x+1)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = UpperP(ActSit[temp].x+1);
+					ActSit[NActive++].y = ActSit[temp].y;
+				}
+				break;
+			case 2:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1)] == 0){
+					Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1)] = 1;
+					ActSit[NActive].x = ActSit[temp].x;
+					ActSit[NActive++].y = LowerP(ActSit[temp].y-1);
+				}
+				break;
+			case 4:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1)] == 0){
+					Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1)] = 1;
+					ActSit[NActive].x = ActSit[temp].x;
+					ActSit[NActive++].y = UpperP(ActSit[temp].y+1);
+				}
+				break;
+		}
+	}
+	else{
+		temp = sfmt_genrand_uint64(&sfmt)%NActive;
+		Lattice[ActSit[temp].x][ActSit[temp].y] = 0;
+		ActSit[temp] = ActSit[--NActive];
+	}
+ }
+ Results[0] = 1.0;
+ Results[1] = double(NActive)/double(L*L);
+ Results[2] = 0.0;
+ Results[3] = double(NActive*NActive)/double( (long long) L*L*L*L);
+ Results[4] = 0.0;
+ Results[5] = R2;
+ Results[6] = 0.0;
+ Results[7] = NActive ? 1.0 : 0.0;
+// printf("%llu\n", NActive);
  return *this;
 }
+
+/*********************************
+	RESULTS
+0 NDisConf - Number of disorder configurations
+1 p1 - order parameter (density of infected sites)
+2 s_p1 - standard error of the order parameters
+3 p2 - second moment of the order parameter
+4 s_p2 standard error of the order parameter
+5 R - mean radius
+6 sR - standard error of the mean radius
+7 S - survival probability
+8 Noccup - mean radius
+*********************************/
 
 bool _2DDilutedContact_::Gen_PercConf(void){
  double p = Parameters[2];
