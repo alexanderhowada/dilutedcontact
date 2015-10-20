@@ -11,4 +11,4 @@ cpp : $(DEPS) teste.cpp
 teste2 : $(DEPS) teste2.cpp
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -o 2DDC teste2.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -o ../2DDC teste2.cpp $(INC_LIB)

@@ -353,11 +353,11 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
  }
  Results[0] = 1.0;
  Results[1] = double(NActive)/double(L*L);
- Results[2] = 0.0;
- Results[3] = double(NActive*NActive)/double( (long long) L*L*L*L);
- Results[4] = 0.0;
+ Results[2] = double(NActive*NActive)/double( (long long) L*L*L*L);
+ Results[3] = double(pow(NActive,4))/double( pow(L,8));
+ Results[4] = double(pow(NActive,8))/double( pow(L,16));
  Results[5] = R2;
- Results[6] = 0.0;
+ Results[6] = R2*R2;
  Results[7] = NActive ? 1.0 : 0.0;
 // printf("%llu\n", NActive);
  return *this;
@@ -490,24 +490,10 @@ _2DDilutedContact_& _2DDilutedContact_::Save_Simulation(void){
  _MPI_vector_<double> temp(NResults);
  int NOutput = Save.Searchfor(Parameters.Get_Pointer(), temp.Get_Pointer());
  if( NOutput == 1){
-	temp[2] /= 4.0;
-	temp[2] *= temp[2];
-	temp[2] *= temp[0];
-	temp[2] += pow(temp[1]*0.25, 2);
-
-	Results[2] /= 4.0;
-	Results[2] *= Results[2];
-	Results[2] *= Results[0];
-	Results[2] += pow(Results[1]*0.25, 2);
-
-	temp[1] = (temp[1]*temp[0] + Results[1]*Results[0])/(temp[0] + Results[0]);
-
-	temp[2] = (temp[2]*temp[0] + Results[2]*Results[0])/(temp[0] + Results[0]);
-	temp[2] -= temp[1]*temp[1]*0.0625;
+	for(unsigned int index = 1; index < NResults; index++){
+		temp[index] = (temp[index]*temp[0] + Results[index]*Results[0])/(temp[0] + Results[0]);
+	}
 	temp[0] += Results[0];
-	temp[2] /= temp[0];
-	temp[2] = sqrt(temp[2]);
-	temp[2] *= 4.0;
 	Save.Update(Parameters.Get_Pointer(), temp.Get_Pointer());
  }
  else if(NOutput == 0){
