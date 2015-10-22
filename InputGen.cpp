@@ -17,15 +17,15 @@ int main(int Nargs, char *Input[]){
 
  *L = 32.0;
  *p = 1.0;
- *t_init = 1000000.0;
- *NThermalMeans = 5000.0;
- *tau = 20.0;
- *NDisConf = 100.0;
+ *t_init = 5000.0;
+ *NThermalMeans = 500.0;
+ *tau = 2.0;
+ *NDisConf = 200.0;
 
  FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
 
- for(*Lambda = 2.5; *Lambda < 4.0; *Lambda += 0.01){
+ for(*Lambda = 1.0; *Lambda < 3.0; *Lambda += 0.02){
 	Inputs.Print(save, PrintSpec, " ");
 	fprintf(save, "\n");
  }
