@@ -300,53 +300,57 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 
  double Infec_P = Parameters[1]/(1.0 + Parameters[1]);
  uint64_t temp;
-
+//FILE *SAVE = fopen("lattice.txt", "w");
+//PrintLattice(SAVE);
+//fprintf(SAVE, "\n");
  while(T < Parameters[3] && NActive){
+//PrintLattice(SAVE);
+//fprintf(SAVE, "\n");
 	T += 1.0/NActive;
 	temp = sfmt_genrand_uint64(&sfmt);
 	if(sfmt_genrand_res53(&sfmt) < Infec_P){
-		temp = sfmt_genrand_uint64(&sfmt);
 		switch( temp%4 ){
 			case 0:
 				temp >>= 2;
 				temp %= NActive;
-				if(Lattice[LowerP(ActSit[temp].x-1)][ActSit[temp].y] == 0){
-					Lattice[LowerP(ActSit[temp].x-1)][ActSit[temp].y] = 1;
-					ActSit[NActive].x = LowerP(ActSit[temp].x-1);
+				if(Lattice[LowerP(ActSit[temp].x-1U)][ActSit[temp].y] == 0){
+					Lattice[LowerP(ActSit[temp].x-1U)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = LowerP(ActSit[temp].x-1U);
 					ActSit[NActive++].y = ActSit[temp].y;
 				}
 				break;
 			case 1:
 				temp >>= 2;
 				temp %= NActive;
-				if(Lattice[UpperP(ActSit[temp].x+1)][ActSit[temp].y] == 0){
-					Lattice[UpperP(ActSit[temp].x+1)][ActSit[temp].y] = 1;
-					ActSit[NActive].x = UpperP(ActSit[temp].x+1);
+				if(Lattice[UpperP(ActSit[temp].x+1U)][ActSit[temp].y] == 0){
+					Lattice[UpperP(ActSit[temp].x+1U)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = UpperP(ActSit[temp].x+1U);
 					ActSit[NActive++].y = ActSit[temp].y;
 				}
 				break;
 			case 2:
 				temp >>= 2;
 				temp %= NActive;
-				if(Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1)] == 0){
-					Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1)] = 1;
+				if(Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1U)] == 0){
+					Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1U)] = 1;
 					ActSit[NActive].x = ActSit[temp].x;
-					ActSit[NActive++].y = LowerP(ActSit[temp].y-1);
+					ActSit[NActive++].y = LowerP(ActSit[temp].y-1U);
 				}
 				break;
-			case 4:
+			case 3:
 				temp >>= 2;
 				temp %= NActive;
-				if(Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1)] == 0){
-					Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1)] = 1;
+				if(Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1U)] == 0){
+					Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1U)] = 1;
 					ActSit[NActive].x = ActSit[temp].x;
-					ActSit[NActive++].y = UpperP(ActSit[temp].y+1);
+					ActSit[NActive++].y = UpperP(ActSit[temp].y+1U);
 				}
 				break;
 		}
 	}
 	else{
-		temp = sfmt_genrand_uint64(&sfmt)%NActive;
+		if(NActive == 1U){ continue;}
+		temp %= NActive;
 		Lattice[ActSit[temp].x][ActSit[temp].y] = 0;
 		ActSit[temp] = ActSit[--NActive];
 	}
@@ -359,7 +363,6 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
  Results[5] = R2;
  Results[6] = R2*R2;
  Results[7] = NActive ? 1.0 : 0.0;
-// printf("%llu\n", NActive);
  return *this;
 }
 
