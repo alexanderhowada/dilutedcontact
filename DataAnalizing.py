@@ -5,8 +5,8 @@ import sys
 sys.path.insert(0, '../GeneralMonteCarlo')
 import _SQLite_Database_ as SQLite
 
-Data = SQLite._SQLite_Database_('DCP.db', 'DilutedContact')
-PrimaryKey = [128.0,1.64872,1.0,20000.0,5000.0,2.0]
+Data = SQLite._SQLite_Database_('DCP_new.db', 'DilutedContact')
+PrimaryKey = [128.0,1.64872,1.0,1500.0,500.0,2.0]
 Delta = [       1.0,0.00001,0.1,    0.1,   0.1,0.1]
 L = [128, 256];
 

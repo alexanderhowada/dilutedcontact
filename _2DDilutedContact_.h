@@ -254,12 +254,12 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
 
  ActSit[3].x = ini;
  ActSit[3].y = ini-1;
- 
+
  Noccup = 1;
  NActive = 4;
 
  bool Percolate = Gen_PercConf();
- 
+
  assert(NActive == 0);
 
  for(unsigned int x = 0; x < L; x++){
@@ -349,7 +349,7 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 		}
 	}
 	else{
-		if(NActive == 1U){ continue;}
+//		if(NActive == 1U){ continue;}
 		temp %= NActive;
 		Lattice[ActSit[temp].x][ActSit[temp].y] = 0;
 		ActSit[temp] = ActSit[--NActive];
