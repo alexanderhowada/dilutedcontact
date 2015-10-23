@@ -6,13 +6,14 @@ sys.path.insert(0, '../GeneralMonteCarlo')
 import _SQLite_Database_ as SQLite
 
 Data = SQLite._SQLite_Database_('DCP_new.db', 'DilutedContact')
-PrimaryKey = [128.0,1.64872,1.0,1500.0,500.0,2.0]
+PrimaryKey = []
+PrimaryKey.append([128.0,1.64872,1.0,1500.0, 500.0,2.0])
+PrimaryKey.append([256.0,1.64872,1.0,3000.0,1000.0,2.0])
 Delta = [       1.0,0.00001,0.1,    0.1,   0.1,0.1]
-L = [128, 256];
 
-for x in L:
-	PrimaryKey[0] = x
-	u = Data.SearchforAll(PrimaryKey, Delta)
-	rho2 = u[0][7]*u[0][7]
-	rho22 = u[0][8]
-	print PrimaryKey[0], (rho22-rho2)/rho2
+for x in PrimaryKey:
+#	PrimaryKey[0] = x
+	u = Data.SearchforAll(x, Delta)
+	rho2 = u[0][7]*u[0][7]/(u[0][13]*u[0][13])
+	rho22 = u[0][8]/u[0][13]
+	print x, (rho22-rho2)/rho2
