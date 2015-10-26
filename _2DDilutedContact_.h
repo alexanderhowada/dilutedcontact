@@ -349,7 +349,7 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 		}
 	}
 	else{
-//		if(NActive == 1U){ continue;}
+		if(NActive == 1U){ continue;}
 		temp %= NActive;
 		Lattice[ActSit[temp].x][ActSit[temp].y] = 0;
 		ActSit[temp] = ActSit[--NActive];

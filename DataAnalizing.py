@@ -7,8 +7,8 @@ import _SQLite_Database_ as SQLite
 
 Data = SQLite._SQLite_Database_('DCP_new.db', 'DilutedContact')
 PrimaryKey = []
-PrimaryKey.append([128.0,1.64872,1.0, 500.0, 500.0,2.0])
-PrimaryKey.append([256.0,1.64872,1.0,1000.0,1000.0,2.0])
+PrimaryKey.append([128.0,1.64872,1.0, 2*250.0, 2*250.0,2.0])
+PrimaryKey.append([256.0,1.64872,1.0, 2*500.0, 2*500.0,2.0])
 Delta = [       1.0,0.00001,0.1,    0.1,   0.1,0.1]
 
 for x in PrimaryKey:
