@@ -59,7 +59,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
  unsigned long long ActSit_size = 0;
  unsigned long long NActive = 0;
- unsigned long long R2 = 0;
+ double R2 = 0;
  unsigned int L = 0;
  double T = 0.0;
 
@@ -68,6 +68,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  bool Allocate(unsigned int);
  inline uint16_t LowerP(uint16_t);
  inline uint16_t UpperP(uint16_t);
+ void CalculateR2(void);
 	public:
  _MPI_vector_<double> Parameters, Results;
 
@@ -272,7 +273,7 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
  ActSit[0].x = ini;
  ActSit[0].y = ini;
  T = 0.0;
- R2 = 0;
+ R2 = 0.0;
  return Percolate;
 }
 
@@ -294,6 +295,14 @@ inline uint16_t _2DDilutedContact_::LowerP(uint16_t x){
 }
 inline uint16_t _2DDilutedContact_::UpperP(uint16_t x){
  return x == L ? 0 : x;
+}
+
+void _2DDilutedContact_::CalculateR2(void){
+ R2 = 0.0;
+ uint16_t ini = L/2;
+ for(unsigned int index = 0; index < NActive; index++){
+	R2 += pow(ActSit[index].x - ini, 2) + pow(ActSit[index].y - ini, 2);
+ }
 }
 
 _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
@@ -355,6 +364,7 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 		ActSit[temp] = ActSit[--NActive];
 	}
  }
+ CalculateR2();
  Results[0] = 1.0;
  Results[1] = double(NActive)/double(L*L);
  Results[2] = double(NActive*NActive)/double( (long long) L*L*L*L);

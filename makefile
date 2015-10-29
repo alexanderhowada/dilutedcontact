@@ -12,3 +12,8 @@ Inputs: $(DEPS) InputGen.cpp
 	@clear
 	@clear
 	$(CC) -O3 -Wall -ansi -I../GeneralMonteCarlo -std=c++11 -o InputGen InputGen.cpp
+
+teste: $(DEPS) teste.cpp
+	@clear
+	@clear
+	$(CC) $(CFLAGS) -o ../2DDC teste.cpp $(INC_LIB)
