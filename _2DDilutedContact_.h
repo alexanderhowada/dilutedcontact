@@ -258,9 +258,9 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
 
  Noccup = 1;
  NActive = 4;
-
+ bool Percolate = false;
  do{
-	bool Percolate = Gen_PercConf();
+	Percolate = Gen_PercConf();
  }
  while(Percolate != true);
 
