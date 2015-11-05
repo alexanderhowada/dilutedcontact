@@ -11,14 +11,14 @@ DatabaseName = ['DCP.db', 'DCP_new.db']
 PrimaryKey = []
 #PrimaryKey.append([128.0,1.64872,1.0,    500.0, 500.0,2.0])
 L=[32, 64, 128, 256]
-PrimaryKey.append([256.0,1.64872,1.0,100000.0,100000.0  ,2.0])
-Delta = [            1.0,0.2    ,0.1,      1.0,      1.0,1.0]
+PrimaryKey.append([256.0,1.64872,1.0,  1000.0,  1000.0  ,2.0])
+Delta = [            1.0,0.2    ,0.1,100000.0,100000.0,1.0]
 
 
 plt.figure(1)
 #Legend = []
 #for Name in DatabaseName:
-Data = SQLite._SQLite_Database_('DCP.db', 'DilutedContact')
+Data = SQLite._SQLite_Database_('DCP_new.db', 'DilutedContact')
 for LL in L:
 	PrimaryKey[0][0] = LL
 	y = Data.SearchforAll(PrimaryKey[0], Delta)

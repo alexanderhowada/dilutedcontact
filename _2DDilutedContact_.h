@@ -238,31 +238,32 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
 *************************************/
 
 bool _2DDilutedContact_::Set_InitialConditions(void){
- Results = 0.0;
- for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
- memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
- int ini = L/2;
- Lattice[ini][ini] = 1;
 
- ActSit[0].x = ini;
- ActSit[0].y = ini+1;
-
- ActSit[1].x = ini+1;
- ActSit[1].y = ini;
-
- ActSit[2].x = ini-1;
- ActSit[2].y = ini;
-
- ActSit[3].x = ini;
- ActSit[3].y = ini-1;
-
- Noccup = 1;
- NActive = 4;
  bool Percolate = false;
+ int ini = L/2;
  do{
+	Results = 0.0;
+	for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
+	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
+
+	Lattice[ini][ini] = 1;
+
+	ActSit[0].x = ini;
+	ActSit[0].y = ini+1;
+
+	ActSit[1].x = ini+1;
+	ActSit[1].y = ini;
+
+	ActSit[2].x = ini-1;
+	ActSit[2].y = ini;
+
+	ActSit[3].x = ini;
+	ActSit[3].y = ini-1;
+
+	Noccup = 1;
+	NActive = 4;
 	Percolate = Gen_PercConf();
- }
- while(Percolate != true);
+ }while(Percolate != true);
 
  for(unsigned int x = 0; x < L; x++){
 	for(unsigned int y = 0; y < L; y++){
@@ -392,7 +393,7 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 
 bool _2DDilutedContact_::Gen_PercConf(void){
  double p = Parameters[2];
- bool result = 0;
+ bool result = false;
  unsigned long long rand;
  unsigned int x, y, L_1;
  x = y = 0;
@@ -408,7 +409,7 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 		Lattice[x][y] = 1;
 		Noccup++;
 		if( !(x&&y) || x == L_1 || y == L_1){
-			result = 1;
+			result = true;
                         if(!Lattice[x][(y+1)%L]){
 				ActSit[NActive].x = x;
 				ActSit[NActive++].y = (y+1)%L;
