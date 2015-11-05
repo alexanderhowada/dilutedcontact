@@ -11,7 +11,7 @@ cpp : $(DEPS) run.cpp
 Inputs: $(DEPS) InputGen.cpp
 	@clear
 	@clear
-	$(CC) -O3 -Wall -ansi -I../GeneralMonteCarlo -std=c++11 -o InputGen InputGen.cpp
+	$(CC) -O3 -Wall -ansi -I../GeneralMonteCarlo -std=c++11 -o InputGen InputGen.cpp -lm
 
 teste: $(DEPS) teste.cpp
 	@clear
