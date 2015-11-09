@@ -1,1 +1,1 @@
-mpirun -n 29 --hostfile nos2.txt ./../2DDC DCP_new.db DilutedContact Inputs.txt
+mpirun -n 92 --hostfile nos2.txt ./../2DDC DCP_new.db DilutedContact Inputs.txt

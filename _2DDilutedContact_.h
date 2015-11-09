@@ -483,7 +483,7 @@ bool _2DDilutedContact_::Gen_PercConf(void){
 	}
 	ActSit[rand] = ActSit[--NActive];
  }
- Results[8] = double(Noccup)/pow(L, 2);
+ Results[8] = double(Noccup)/pow(double(L), 2.0);
  return result;
 }
 

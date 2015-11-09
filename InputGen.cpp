@@ -26,6 +26,8 @@ int main(int Nargs, char *Input[]){
  FILE *save = fopen(SaveName, "w");
  if(save == NULL) exit(1);
  for(*L = 32.0; *L < 257.0; (*L) *=2.0, *t_init *= 1.5, *NThermalMeans *= 1.5){
+	*t_init = int(*t_init);
+	*NThermalMeans = int(*NThermalMeans);
 	if(*L < 128) continue;
 	for(*Lambda = 1.64872 - 0.0125; *Lambda < 1.64872 + 0.0125; *Lambda += 0.0025){
 		Inputs.Print(save, PrintSpec, " ");
