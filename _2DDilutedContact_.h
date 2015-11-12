@@ -311,12 +311,7 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 
  double Infec_P = Parameters[1]/(1.0 + Parameters[1]);
  uint64_t temp;
-//FILE *SAVE = fopen("lattice.txt", "w");
-//PrintLattice(SAVE);
-//fprintf(SAVE, "\n");
  while(T < Parameters[3] && NActive){
-//PrintLattice(SAVE);
-//fprintf(SAVE, "\n");
 	T += 1.0/NActive;
 	temp = sfmt_genrand_uint64(&sfmt);
 	if(sfmt_genrand_res53(&sfmt) < Infec_P){

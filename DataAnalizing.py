@@ -16,23 +16,23 @@ Delta = [            1.0,0.2    ,0.1,100000.0,100000.0,1.0]
 
 
 plt.figure(1)
-#Legend = []
-#for Name in DatabaseName:
-Data = SQLite._SQLite_Database_('DCP_new.db', 'DilutedContact')
-for LL in L:
-	PrimaryKey[0][0] = LL
-	y = Data.SearchforAll(PrimaryKey[0], Delta)
-	Lamb = []
-	rho2 = []
-	rho22 = []
-	for element in y:
-		Lamb.append(element[1])
-		rho2.append(element[7]*element[7]/(element[13]*element[13]))
-		rho22.append(element[8]/element[13])
-	Lamb = np.asarray(Lamb)
-	rho2 = np.asarray(rho2)
-	rho22 = np.asarray(rho22)
-	plt.plot(Lamb, (rho22 - rho2)/rho2, '-x', label="L="+str(LL))
+DatabaseName = ['DCP_new.db', 'DCP.db']
+for Name in DatabaseName:
+	Data = SQLite._SQLite_Database_(Name, 'DilutedContact')
+	for LL in L:
+		PrimaryKey[0][0] = LL
+		y = Data.SearchforAll(PrimaryKey[0], Delta)
+		Lamb = []
+		rho2 = []
+		rho22 = []
+		for element in y:
+			Lamb.append(element[1])
+			rho2.append(element[7]*element[7]/(element[13]*element[13]))
+			rho22.append(element[8]/element[13])
+		Lamb = np.asarray(Lamb)
+		rho2 = np.asarray(rho2)
+		rho22 = np.asarray(rho22)
+		plt.plot(Lamb, (rho22 - rho2)/rho2, '-x', label=Name+"L="+str(LL))
 plt.legend()
 plt.grid()
 plt.axis((1.55, 1.75, 0.0, 1.2))

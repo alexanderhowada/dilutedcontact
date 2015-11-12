@@ -3,10 +3,15 @@ CFLAGS=-O3 -Wall -ansi -std=c++11 -I../GeneralMonteCarlo -I../SFMT -msse2 -DHAVE
 DEPS=../GeneralMonteCarlo/_Generic_Simulation_.h ../GeneralMonteCarlo/_MPI_vector_.h ../GeneralMonteCarlo/_SQLite_Database_.h _2DDilutedContact_.h ../GeneralMonteCarlo/_Parallelize_Stationary_.h ../SFMT/SFMT.c ../SFMT/SFMT.h
 INC_LIB=-lm -lsqlite3
 
-cpp : $(DEPS) run.cpp
+steadystate : $(DEPS) run-steadystate.cpp
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -o ../2DDC run.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -o ../2DDC-steadystate run-steadystate.cpp $(INC_LIB)
+
+timeseries : $(DEPS) run-timeseries.cpp
+	@clear
+	@clear
+	$(CC) $(CFLAGS) -o ../2DDC-timeseries run-timeseries.cpp $(INC_LIB)
 
 Inputs: $(DEPS) InputGen.cpp
 	@clear
