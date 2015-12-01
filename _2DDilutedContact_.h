@@ -501,12 +501,15 @@ _2DDilutedContact_& _2DDilutedContact_::Save_Simulation(void){
  int NOutput = Save.Searchfor(Parameters.Get_Pointer(), temp.Get_Pointer());
  if( NOutput == 1){
 	for(unsigned int index = 1; index < NResults; index++){
-		temp[index] = (temp[index]*temp[0] + Results[index]*Results[0])/(temp[0] + Results[0]);
+		temp[index] = (temp[index]*temp[0] + Results[index])/(temp[0] + Results[0]);
 	}
 	temp[0] += Results[0];
 	Save.Update(Parameters.Get_Pointer(), temp.Get_Pointer());
  }
  else if(NOutput == 0){
+	double temp = Results[0];
+	Results /= Results[0];
+	Results[0] = temp;
 	Save.Insert(Parameters.Get_Pointer(), Results.Get_Pointer());
  }
  else{
