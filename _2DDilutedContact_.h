@@ -62,6 +62,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  double R2 = 0;
  unsigned int L = 0;
  double T = 0.0;
+ bool NotReachBorder=true;
 
  _SQLite_Database_ Save;
 
@@ -89,6 +90,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  bool Set_InitialConditions(void);
  _2DDilutedContact_& Simulate(void);
  bool Gen_PercConf(void);
+ int Get_SimulationState(void);
  _2DDilutedContact_& PrintLattice(FILE*);
  _2DDilutedContact_& Save_Simulation(void);
  
@@ -276,6 +278,7 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
  ActSit[0].y = ini;
  T = 0.0;
  R2 = 0.0;
+ NotReachBorder=true;
  return Percolate;
 }
 
@@ -291,6 +294,9 @@ tau          - time interval between means
 
 *********************************/
 
+int _2DDilutedContact_::Get_SimulationState(void){
+ return NotReachBorder ? 1 : 0;
+}
 
 inline uint16_t _2DDilutedContact_::LowerP(uint16_t x){
  return x > L ? L-1 : x;
@@ -306,11 +312,79 @@ void _2DDilutedContact_::CalculateR2(void){
 	R2 += pow(ActSit[index].x - ini, 2) + pow(ActSit[index].y - ini, 2);
  }
 }
+/*
+void _2DDilutedContact_::CalculateR2(void){
+ R2 = 0.0;
+ double temp_mean_x = 0.0;
+ double temp_mean_y = 0.0;
+ for(unsigned int index = 0; index < NActive; index++){
+	temp_mean_x += ActSit[index].x;
+	temp_mean_y += ActSit[index].y;
+ }
+ temp_mean_x /= NActive;
+ temp_mean_x /= NActive;
+ for(unsigned int index = 0; index < NActive; index++){
+	R2 += pow(ActSit[index].x - temp_mean_x, 2) + pow(ActSit[index].y - temp_mean_y, 2);
+ }
+}*/
 
 _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 
  double Infec_P = Parameters[1]/(1.0 + Parameters[1]);
  uint64_t temp;
+ while(T < Parameters[3] && NActive && NotReachBorder){
+	T += 1.0/NActive;
+	temp = sfmt_genrand_uint64(&sfmt);
+	if(sfmt_genrand_res53(&sfmt) < Infec_P){
+		switch( temp%4 ){
+			case 0:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[LowerP(ActSit[temp].x-1U)][ActSit[temp].y] == 0){
+					Lattice[LowerP(ActSit[temp].x-1U)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = LowerP(ActSit[temp].x-1U);
+					ActSit[NActive++].y = ActSit[temp].y;
+				}
+				break;
+			case 1:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[UpperP(ActSit[temp].x+1U)][ActSit[temp].y] == 0){
+					Lattice[UpperP(ActSit[temp].x+1U)][ActSit[temp].y] = 1;
+					ActSit[NActive].x = UpperP(ActSit[temp].x+1U);
+					ActSit[NActive++].y = ActSit[temp].y;
+				}
+				break;
+			case 2:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1U)] == 0){
+					Lattice[ActSit[temp].x][LowerP(ActSit[temp].y-1U)] = 1;
+					ActSit[NActive].x = ActSit[temp].x;
+					ActSit[NActive++].y = LowerP(ActSit[temp].y-1U);
+				}
+				break;
+			case 3:
+				temp >>= 2;
+				temp %= NActive;
+				if(Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1U)] == 0){
+					Lattice[ActSit[temp].x][UpperP(ActSit[temp].y+1U)] = 1;
+					ActSit[NActive].x = ActSit[temp].x;
+					ActSit[NActive++].y = UpperP(ActSit[temp].y+1U);
+				}
+				break;
+		}
+		if(ActSit[temp].x == 0 || ActSit[temp].y == 0 || ActSit[temp].x == L-1 || ActSit[temp].y == L-1){
+			NotReachBorder = false;
+		}
+	}
+	else{
+//		if(NActive == 1U){ continue;}
+		temp %= NActive;
+		Lattice[ActSit[temp].x][ActSit[temp].y] = 0;
+		ActSit[temp] = ActSit[--NActive];
+	}
+ }
  while(T < Parameters[3] && NActive){
 	T += 1.0/NActive;
 	temp = sfmt_genrand_uint64(&sfmt);
