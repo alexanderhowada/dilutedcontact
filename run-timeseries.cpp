@@ -2,7 +2,7 @@
 #include<random>
 #include<mpi.h>
 
-#include"_Parallelize_TimeSeries_.h"
+#include"_Parallelize_CondTimeSeries_.h"
 #include"_2DDilutedContact_.h"
 
 int main(int Nargs, char* Inputs[]){
@@ -16,19 +16,22 @@ int main(int Nargs, char* Inputs[]){
  std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seed(1);
 
+ const unsigned int NSimul = 1UL<<14;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
 		Seed[0] = SeedGen();
 		Seed.Send(process, 0);
 	}
-	_2DDilutedContact_ Simul(time(NULL),Inputs[1], Inputs[2]);
-	_Parallelize_TimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	_2DDilutedContact_ Simul(SeedGen(),Inputs[1], Inputs[2]);
+	_Parallelize_CondTimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
  }
  else{
 	Seed.Recv(0, 0);
 	_2DDilutedContact_ Simul(Seed[0]);
-	_Parallelize_TimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	_Parallelize_CondTimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
  }
 
