@@ -64,19 +64,18 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  double T = 0.0;
  bool NotReachBorder=true;
 
- _SQLite_Database_ Save;
-
  bool Allocate(unsigned int);
  inline uint16_t LowerP(uint16_t);
  inline uint16_t UpperP(uint16_t);
  void CalculateR2(void);
 	public:
+ _SQLite_Database_ Save;
  _MPI_vector_<double> Parameters, Results;
 
  int8_t **Lattice = NULL;
  unsigned long long Noccup = 0;
  unsigned long long NSimul = 1;
- 
+
  ~_2DDilutedContact_(void);
 
  _2DDilutedContact_(void);
