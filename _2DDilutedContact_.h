@@ -11,6 +11,7 @@
 #include"_Generic_Simulation_.h"
 #include"_MPI_vector_.h"
 #include"_SQLite_Database_.h"
+#include"_Time_Series_.h"
 
 #ifndef _SFMT_C_
 #define _SFMT_C_
@@ -91,7 +92,11 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  bool Gen_PercConf(void);
  int Get_SimulationState(void);
  _2DDilutedContact_& PrintLattice(FILE*);
- _2DDilutedContact_& Save_Simulation(void);
+ inline long long Init_Database(void);
+ _2DDilutedContact_& Save_Simulation(long long);
+ _SQLite_Database_& Get_Database(void);
+
+ unsigned long long Get_MaxDatabaseCounter(void);
  
 };
 
@@ -128,6 +133,7 @@ _2DDilutedContact_::_2DDilutedContact_(uint32_t seed32, const char* Database, co
  this->Seed(seed32);
  P2_Param = +Parameters;
  P2_Res = +Results;
+ Save.GetSet_MaxId();
 }
 
 _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
@@ -137,6 +143,7 @@ _2DDilutedContact_::_2DDilutedContact_(const char* Database, const char* Table):
 {
  P2_Param = +Parameters;
  P2_Res = +Results;
+ Save.GetSet_MaxId();
 }
 
 _2DDilutedContact_& _2DDilutedContact_::Seed(uint32_t seed32){
@@ -231,6 +238,9 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
  return *this;
 }
 
+_SQLite_Database_& _2DDilutedContact_::Get_Database(void){
+ return Save;
+}
 
 /*************************************
 
@@ -569,28 +579,66 @@ _2DDilutedContact_& _2DDilutedContact_::PrintLattice(FILE *fstream){
  return *this;
 }
 
-_2DDilutedContact_& _2DDilutedContact_::Save_Simulation(void){
+//_2DDilutedContact_& _2DDilutedContact_::Save_Simulation(void){
+// _MPI_vector_<double> temp(NResults);
+// int NOutput = Save.Searchfor(Parameters.Get_Pointer(), temp.Get_Pointer());
+// if( NOutput == 1){
+//	for(unsigned int index = 1; index < NResults; index++){
+//		temp[index] = (temp[index]*temp[0] + Results[index])/(temp[0] + Results[0]);
+//	}
+//	temp[0] += Results[0];
+//	Save.Update(Parameters.Get_Pointer(), temp.Get_Pointer());
+// }
+// else if(NOutput == 0){
+//	double temp = Results[0];
+//	Results /= Results[0];
+//	Results[0] = temp;
+//	Save.Insert(Parameters.Get_Pointer(), Results.Get_Pointer());
+// }
+// else{
+//	fprintf(stderr, "There is more than one output to be updated at once\n");
+//	Results.Print(stderr, "%.14le", " ");
+//	fprintf(stderr, "\n");
+// }
+// return *this;
+//}
+
+_2DDilutedContact_& _2DDilutedContact_::Save_Simulation(long long Id){
  _MPI_vector_<double> temp(NResults);
- int NOutput = Save.Searchfor(Parameters.Get_Pointer(), temp.Get_Pointer());
+ int NOutput = Save.SearchforId(Id, temp.Get_Pointer());
  if( NOutput == 1){
+	if(temp[0] == 0.0 and Results[0] == 0.0){
+		printf("nan found\n");
+		printf("%llu\n", Id);
+		exit(1234);
+	}
 	for(unsigned int index = 1; index < NResults; index++){
 		temp[index] = (temp[index]*temp[0] + Results[index])/(temp[0] + Results[0]);
 	}
 	temp[0] += Results[0];
-	Save.Update(Parameters.Get_Pointer(), temp.Get_Pointer());
+	Save.UpdatebyId(Id, temp.Get_Pointer());
  }
- else if(NOutput == 0){
-	double temp = Results[0];
-	Results /= Results[0];
-	Results[0] = temp;
-	Save.Insert(Parameters.Get_Pointer(), Results.Get_Pointer());
- }
+// else if(NOutput == 0){
+//	double temp = Results[0];
+//	Results /= Results[0];
+//	Results[0] = temp;
+//	Save.InsertId(Id, Results.Get_Pointer());
+// }
  else{
-	fprintf(stderr, "There is more than one output to be updated at once\n");
+	fprintf(stderr, "Id not founded\n");
 	Results.Print(stderr, "%.14le", " ");
 	fprintf(stderr, "\n");
  }
  return *this;
 }
 
+inline long long _2DDilutedContact_::Init_Database(void){
+ return Save.AssignId(Parameters.Get_Pointer());
+}
+
+unsigned long long _2DDilutedContact_::Get_MaxDatabaseCounter(void){
+ double Value[2] = {0.0};
+ Save.Exec("SELECT MAX(Id) FROM " + Save.Get_TableName(), _SQLite_Func_::AssingToDouble, Value);
+ return Value[0];
+}
 #endif
