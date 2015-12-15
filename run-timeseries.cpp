@@ -16,7 +16,7 @@ int main(int Nargs, char* Inputs[]){
  std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seed(1);
 
- const unsigned int NSimul = 1UL<<14;
+ const unsigned int NSimul = 1UL<<13;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
 		Seed[0] = SeedGen();
@@ -24,9 +24,9 @@ int main(int Nargs, char* Inputs[]){
 	}
 	_2DDilutedContact_ Simul(SeedGen(),Inputs[1], Inputs[2]);
 	Simul.Save.Exec("PRAGMA page_size=16384;");
-	Simul.Save.Exec("PRAGMA cache_size=10000;");
+	Simul.Save.Exec("PRAGMA cache_size=100000;");
 	Simul.Save.Exec("PRAGMA temp_store=2;");
-	Simul.Save.Exec("PRAGMA synchronous=off;");
+	Simul.Save.Exec("PRAGMA synchronous=1;");
 	Simul.Save.Exec("PRAGMA mmap_size=2097152;");
 	Simul.Save.Exec("PRAGMA threads=4;");
 	Simul.Save.Exec("VACUUM;");
