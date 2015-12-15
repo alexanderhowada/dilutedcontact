@@ -159,7 +159,8 @@ bool _2DDilutedContact_::Allocate(unsigned int L){
 	return false;
  }
 // this->L = L;
- ActSit_size = 4*L*L;
+// ActSit_size = 4*L*L;
+ ActSit_size = 2*L*L;
 
  if(Lattice == NULL){
 	Lattice = (int8_t**)malloc(sizeof(int8_t*)*L);
