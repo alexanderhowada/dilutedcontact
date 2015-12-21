@@ -1,6 +1,7 @@
 //#include<iostream>
 //#include<mpi.h>
 #include<time.h>
+//#include"_2DDilutedContactRdRand_.h"
 #include"_2DDilutedContact_.h"
 //#include"_Time_Series_.h"
 //#include"_Parallelize_TimeSeries_.h"
@@ -18,7 +19,7 @@ int main(int Nargs, char *Input[]){
  SiSimul.Parameters.Scan(Inputs, "%lf", "%*c");
  SiSimul.Parameters.Print(stdout, "%lf", " ");
  printf("\n");
- unsigned long long NSimul = 1;
+ unsigned long long NSimul = 100;
 // double tau = SiSimul.Parameters[5];
  for(; NSimul; NSimul--){
 	SiSimul.Set_Parameters();

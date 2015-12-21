@@ -18,7 +18,7 @@ Inputs: $(DEPS) InputGen.cpp
 	@clear
 	$(CC) -O3 -Wall -ansi -I../GeneralMonteCarlo -std=c++11 -o InputGen InputGen.cpp -lm
 
-teste: $(DEPS) teste.cpp
+teste: $(DEPS) teste.cpp ../IntelIntrinsics/_RdRand_32_.h
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -pg -g -o 2DDC teste.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -I../IntelIntrinsics -o 2DDC teste.cpp $(INC_LIB)
