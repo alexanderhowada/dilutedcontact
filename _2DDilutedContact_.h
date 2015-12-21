@@ -253,34 +253,45 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
 
  bool Percolate = false;
  int ini = L/2;
- do{
-	Results = 0.0;
-	for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
-	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
+ if(Parameters[2] < 1.0 and Parameters[2] > 0.0){
+	do{
+		Results = 0.0;
+		for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
+		memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);
+	
+		Lattice[ini][ini] = 1;
+	
+		ActSit[0].x = ini;
+		ActSit[0].y = ini+1;
 
-	Lattice[ini][ini] = 1;
-
-	ActSit[0].x = ini;
-	ActSit[0].y = ini+1;
-
-	ActSit[1].x = ini+1;
-	ActSit[1].y = ini;
-
-	ActSit[2].x = ini-1;
-	ActSit[2].y = ini;
-
-	ActSit[3].x = ini;
-	ActSit[3].y = ini-1;
-
-	Noccup = 1;
-	NActive = 4;
-	Percolate = Gen_PercConf();
- }while(Percolate != true);
-
- for(unsigned int x = 0; x < L; x++){
-	for(unsigned int y = 0; y < L; y++){
-		if(Lattice[x][y] == 1) Lattice[x][y] = 0;
+		ActSit[1].x = ini+1;
+		ActSit[1].y = ini;
+	
+		ActSit[2].x = ini-1;
+		ActSit[2].y = ini;
+	
+		ActSit[3].x = ini;
+		ActSit[3].y = ini-1;
+	
+		Noccup = 1;
+		NActive = 4;
+		Percolate = Gen_PercConf();
+	}while(Percolate != true);
+	
+	for(unsigned int x = 0; x < L; x++){
+		for(unsigned int y = 0; y < L; y++){
+			if(Lattice[x][y] == 1) Lattice[x][y] = 0;
+		}
 	}
+ }
+ else if(Parameters[2] == 1.0){
+	Results = 0.0;
+	Results[8] = 1.0;
+	for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
+	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);	
+ }
+ else{
+	fprintf(stderr,"Parameters[2] out of range (0.0,1.0]\n");
  }
  Lattice[ini][ini] = 1;
  NActive = 1;
@@ -322,21 +333,6 @@ void _2DDilutedContact_::CalculateR2(void){
 	R2 += pow(ActSit[index].x - ini, 2) + pow(ActSit[index].y - ini, 2);
  }
 }
-/*
-void _2DDilutedContact_::CalculateR2(void){
- R2 = 0.0;
- double temp_mean_x = 0.0;
- double temp_mean_y = 0.0;
- for(unsigned int index = 0; index < NActive; index++){
-	temp_mean_x += ActSit[index].x;
-	temp_mean_y += ActSit[index].y;
- }
- temp_mean_x /= NActive;
- temp_mean_x /= NActive;
- for(unsigned int index = 0; index < NActive; index++){
-	R2 += pow(ActSit[index].x - temp_mean_x, 2) + pow(ActSit[index].y - temp_mean_y, 2);
- }
-}*/
 
 _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
 
