@@ -2,7 +2,7 @@
 #include<random>
 #include<mpi.h>
 
-#include"_Parallelize_CondTimeSeries_.h"
+#include"_Parallelize_CondTimeSeries_Exp_.h"
 #include"_2DDilutedContact_.h"
 
 int main(int Nargs, char* Inputs[]){
@@ -16,7 +16,7 @@ int main(int Nargs, char* Inputs[]){
  std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seed(1);
 
- const unsigned int NSimul = 1UL<<13;
+ const unsigned int NSimul = 1UL<<10;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
 		Seed[0] = SeedGen();
@@ -31,14 +31,14 @@ int main(int Nargs, char* Inputs[]){
 	Simul.Save.Exec("PRAGMA threads=4;");
 	Simul.Save.Exec("VACUUM;");
 	Simul.Save.Exec("PRAGMA threads;PRAGMA cache_size;PRAGMA synchronous;", _SQLite_Func_::print);
-	_Parallelize_CondTimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	_Parallelize_CondTimeSeries_Exp_ Parallel_Simul(+Simul, Inputs[3], rank, size);
 	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
  }
  else{
 	Seed.Recv(0, 0);
 	_2DDilutedContact_ Simul(Seed[0]);
-	_Parallelize_CondTimeSeries_ Parallel_Simul(+Simul, Inputs[3], rank, size);
+	_Parallelize_CondTimeSeries_Exp_ Parallel_Simul(+Simul, Inputs[3], rank, size);
 	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
  }
