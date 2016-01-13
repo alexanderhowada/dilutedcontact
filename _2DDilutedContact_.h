@@ -60,9 +60,10 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
  unsigned long long ActSit_size = 0;
  unsigned long long NActive = 0;
- double R2 = 0;
- unsigned int L = 0;
+ double R2 = 0.0;
  double T = 0.0;
+ unsigned int L = 0;
+ double Init_infec_prob = 0.0;
  bool NotReachBorder=true;
 
  bool Allocate(unsigned int);
@@ -87,6 +88,8 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  _2DDilutedContact_& Set_Parameters(void);
  _2DDilutedContact_& Set_Parameters(double*);
  _2DDilutedContact_& Set_Parameters(_MPI_vector_<double>&);
+ inline double Get_Init_infec_prob(void);
+ inline void Set_Init_infec_prob(double);
  bool Set_InitialConditions(void);
  _2DDilutedContact_& Simulate(void);
  bool Gen_PercConf(void);
@@ -239,8 +242,12 @@ _2DDilutedContact_& _2DDilutedContact_::Set_Parameters(_MPI_vector_<double> &Par
  return *this;
 }
 
-_SQLite_Database_& _2DDilutedContact_::Get_Database(void){
- return Save;
+inline double _2DDilutedContact_::Get_Init_infec_prob(void){
+ return Init_infec_prob;
+}
+
+inline void _2DDilutedContact_::Set_Init_infec_prob(double InfecProb){
+ Init_infec_prob = InfecProb;
 }
 
 /*************************************
@@ -252,7 +259,7 @@ _SQLite_Database_& _2DDilutedContact_::Get_Database(void){
 bool _2DDilutedContact_::Set_InitialConditions(void){
 
  bool Percolate = false;
- int ini = L/2;
+ unsigned int ini = L/2;
  if(Parameters[2] < 1.0 and Parameters[2] > 0.0){
 	do{
 		Results = 0.0;
@@ -287,16 +294,43 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
  else if(Parameters[2] == 1.0){
 	Results = 0.0;
 	Results[8] = 1.0;
-	for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 0, sizeof(int8_t)*L);
+	for(unsigned int index = 0; index < L; index++) memset(Lattice[index], 1, sizeof(int8_t)*L);
 	memset(ActSit, 0, sizeof(_2D_L_16_)*ActSit_size);	
  }
  else{
 	fprintf(stderr,"Parameters[2] out of range (0.0,1.0]\n");
  }
- Lattice[ini][ini] = 1;
- NActive = 1;
- ActSit[0].x = ini;
- ActSit[0].y = ini;
+// Lattice[ini][ini] = 1;
+// NActive = 1;
+// ActSit[0].x = ini;
+// ActSit[0].y = ini;
+ if(Init_infec_prob == 0.0){
+	for(unsigned int x = 0; x < L; x++){
+		for(unsigned int y = 0; y < L; y++){
+				if(Lattice[x][y] == 1) Lattice[x][y] = 0;
+		}
+	}
+	Lattice[ini][ini] = 1;
+	NActive = 1;
+	ActSit[0].x = ini;
+	ActSit[0].y = ini;
+ }
+ else{
+	NActive = 0;
+	for(unsigned int x = 0; x < L; x++){
+	for(unsigned int y = 0; y < L; y++){
+			if(Lattice[x][y] == 1){
+				if(sfmt_genrand_res53(&sfmt) < Init_infec_prob || (x == ini and y == ini)){
+					ActSit[NActive].x = x;
+					ActSit[NActive++].y = y;
+				}
+				else{
+					Lattice[x][y] = 0;
+				}
+			}
+	}
+	}
+ }
  T = 0.0;
  R2 = 0.0;
  NotReachBorder=true;
