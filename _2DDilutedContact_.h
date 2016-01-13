@@ -649,12 +649,6 @@ _2DDilutedContact_& _2DDilutedContact_::Save_Simulation(long long Id){
 	temp[0] += Results[0];
 	Save.UpdatebyId(Id, temp.Get_Pointer());
  }
-// else if(NOutput == 0){
-//	double temp = Results[0];
-//	Results /= Results[0];
-//	Results[0] = temp;
-//	Save.InsertId(Id, Results.Get_Pointer());
-// }
  else{
 	fprintf(stderr, "Id not founded\n");
 	Results.Print(stderr, "%.14le", " ");
