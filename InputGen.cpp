@@ -16,21 +16,19 @@ int main(int Nargs, char *Input[]){
  const char *PrintSpec = "%lf";
  const char *SaveName = "Inputs2.txt";
 
- *L = 32.0;
+ *L = 256.0;
  *p = 1.0;
- *t_init = 10000.0;
- *NThermalMeans = 30000.0;
- *tau = 2.0;
- *NDisConf = 1024.0;
+ *t_init = 500000.0;
+ *NThermalMeans = 1000000.0;
+ *tau = 5.0;
+ *NDisConf = (1<<12);
 
  FILE *save = fopen(SaveName, "w");
  if(save == NULL) exit(1);
- for(*Lambda = 1.0; *Lambda < 3.0; *Lambda += 0.025){
+ for(*Lambda = 1.6; *Lambda < 5.0; *Lambda += 0.025){
  for(*p = 0.6; *p <= 1.0; *p+=0.025){
-//	for(*Lambda = 1.55; *Lambda < 1.75; *Lambda += 0.02){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
-//	}
  }
  }
 }
