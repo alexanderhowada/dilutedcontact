@@ -285,11 +285,11 @@ bool _2DDilutedContact_::Set_InitialConditions(void){
 		Percolate = Gen_PercConf();
 	}while(Percolate != true);
 	
-	for(unsigned int x = 0; x < L; x++){
-		for(unsigned int y = 0; y < L; y++){
-			if(Lattice[x][y] == 1) Lattice[x][y] = 0;
-		}
-	}
+//	for(unsigned int x = 0; x < L; x++){
+//		for(unsigned int y = 0; y < L; y++){
+//			if(Lattice[x][y] == 1) Lattice[x][y] = 0;
+//		}
+//	}
  }
  else if(Parameters[2] == 1.0){
 	Results = 0.0;
