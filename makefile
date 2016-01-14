@@ -6,7 +6,7 @@ INC_LIB=-lm -lsqlite3
 steadystate : $(DEPS) run-steadystate.cpp
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -o ../2DDC-steadystate run-steadystate.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -DSTATIONARY -o ../2DDC-steadystate run-steadystate.cpp $(INC_LIB)
 
 timeseries : $(DEPS) run-timeseries.cpp
 	@clear
