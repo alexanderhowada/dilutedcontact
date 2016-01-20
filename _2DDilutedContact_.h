@@ -54,7 +54,7 @@ class _2DDilutedContact_: public _Generic_Simulation_ {
  sfmt_t sfmt;
 
  static const unsigned int NParameters = 6;
- static const unsigned int NResults = 9;
+ static const unsigned int NResults = 10;
 
  _2DLattice_::_2D_uint16_ *ActSit = NULL;
  typedef _2DLattice_::_2D_uint16_ _2D_L_16_;
@@ -480,10 +480,11 @@ _2DDilutedContact_& _2DDilutedContact_::Simulate(void){
  Results[1] = double(NActive)/double(L*L);
  Results[2] = double(NActive*NActive)/double( (long long) L*L*L*L);
  Results[3] = double(pow(NActive,4))/double( pow(L,8));
- Results[4] = double(pow(NActive,8))/double( pow(L,16));
+ Results[4] = double(pow(NActive,3))/double( pow(L,6));
  Results[5] = R2;
  Results[6] = R2*R2;
  Results[7] = NActive ? 1.0 : 0.0;
+ Results[9] = R2*NActive;
  return *this;
 }
 
