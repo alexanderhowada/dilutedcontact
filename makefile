@@ -11,7 +11,7 @@ steadystate : $(DEPS) run-steadystate.cpp
 timeseries : $(DEPS) run-timeseries.cpp ../GeneralMonteCarlo/_Parallelize_CondTimeSeries_Exp_.h
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -DNO_CONDITION -o ../2DDC-timeseries run-timeseries.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -o ../2DDC-timeseries run-timeseries.cpp $(INC_LIB)
 
 Inputs: $(DEPS) InputGen.cpp
 	@clear
