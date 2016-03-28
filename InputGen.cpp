@@ -14,21 +14,23 @@ int main(int Nargs, char *Input[]){
  double *NDisConf = Inputs_temp++;
 
  const char *PrintSpec = "%lf";
- const char *SaveName = "Inputs2.txt";
+ const char *SaveName = "Inputs.txt";
 
- *L = 32.0;
- *p = 1.0;
- *t_init = 10000.0;
- *NThermalMeans = 20000.0;
- *tau = 1.0;
- *NDisConf = (1<<5);
+ *L = 1024.0;
+ *p = 0.9;
+ *t_init = 100.;
+ *NThermalMeans = 1000000.;
+ *tau = 0.05;
+ *NDisConf = 100000.;
 
- FILE *save = fopen(SaveName, "w");
+ FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
- for(*Lambda = 1.7; *Lambda < 3.0; *Lambda += 0.025){
- for(*p = 0.6; *p <= 1.001; *p+=0.025){
+ for(*L=512; *L<1025; *L*=2){
+ for(*Lambda = 1.72; *Lambda < 1.86; *Lambda += 0.02){
+ for(*p = 0.91; *p < 0.95; *p+=0.01){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
+ }
  }
  }
 }
