@@ -21,13 +21,13 @@ int main(int Nargs, char *Input[]){
  *t_init = 100.;
  *NThermalMeans = 1000000.;
  *tau = 0.05;
- *NDisConf = 100000.;
+ *NDisConf = 300000.;
 
  FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
- for(*L=512; *L<1025; *L*=2){
- for(*Lambda = 1.72; *Lambda < 1.86; *Lambda += 0.02){
- for(*p = 0.91; *p < 0.95; *p+=0.01){
+ for(*L=1024; *L<2049; *L*=2){
+ for(*Lambda = 1.80; *Lambda < 2.01; *Lambda += 0.01){
+ for(*p = 0.85; *p < 0.91; *p+=0.01){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
  }
