@@ -14,7 +14,7 @@ int main(int Nargs, char *Input[]){
  double *NDisConf = Inputs_temp++;
 
  const char *PrintSpec = "%lf";
- const char *SaveName = "Inputs.txt";
+ const char *SaveName = "Inputspy.txt";
 
  *L = 1024.0;
  *p = 0.9;
@@ -26,8 +26,8 @@ int main(int Nargs, char *Input[]){
  FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
  for(*L=512; *L<1025; *L*=2){
- for(*Lambda = 2.0; *Lambda < 2.33; *Lambda += 0.03){
- for(*p = 0.75; *p < 0.80; *p+=0.01){
+ for(*Lambda = 2.49; *Lambda < 2.70; *Lambda += 0.03){
+ for(*p = 0.65; *p < 0.70; *p+=0.01){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
  }
