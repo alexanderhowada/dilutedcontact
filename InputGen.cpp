@@ -26,8 +26,8 @@ int main(int Nargs, char *Input[]){
  FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
  for(*L=512; *L<1025; *L*=2){
- for(*Lambda = 2.65; *Lambda < 3.0; *Lambda += 0.03){
- for(*p = 0.60; *p < 0.66; *p+=0.01){
+ for(*Lambda = 2.99; *Lambda < 3.10; *Lambda += 0.01){
+ for(*p = 0.59274605079210; *p < 0.60; *p+=0.001){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
  }
