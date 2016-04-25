@@ -13,7 +13,7 @@ int main(int Nargs, char *Input[]){
  double *tau = Inputs_temp++;
  double *NDisConf = Inputs_temp++;
 
- const char *PrintSpec = "%lf";
+ const char *PrintSpec = "%.13lf";
  const char *SaveName = "Inputspy.txt";
 
  *L = 1024.0;
@@ -26,7 +26,7 @@ int main(int Nargs, char *Input[]){
  FILE *save = fopen(SaveName, "a+");
  if(save == NULL) exit(1);
  for(*L=512; *L<1025; *L*=2){
- for(*Lambda = 2.99; *Lambda < 3.10; *Lambda += 0.01){
+ for(*Lambda = 3.11; *Lambda < 3.20; *Lambda += 0.01){
  for(*p = 0.59274605079210; *p < 0.60; *p+=0.001){
 		Inputs.Print(save, PrintSpec, " ");
 		fprintf(save, "\n");
