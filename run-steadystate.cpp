@@ -16,7 +16,8 @@ int main(int Nargs, char* Inputs[]){
  std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seed(1);
 
- const unsigned int NSimul = 1UL<<5;
+// const unsigned int NSimul = 1UL<<5;
+ const unsigned int NSimul = 1;
 // const unsigned int NSimul =1;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
