@@ -16,7 +16,7 @@ timeseries : $(DEPS) run-timeseries.cpp ../GeneralMonteCarlo/_Parallelize_CondTi
 timeseriesFull : $(DEPS) run-timeseriesFull.cpp ../GeneralMonteCarlo/_Parallelize_CondTimeSeries_Exp_.h
 	@clear
 	@clear
-	$(CC) $(CFLAGS) -DNO_CONDITION -o ../2DDC-timeseriesFull run-timeseries.cpp $(INC_LIB)
+	$(CC) $(CFLAGS) -DNO_CONDITION -o ../2DDC-timeseriesFull run-timeseriesFull.cpp $(INC_LIB)
 
 Inputs: $(DEPS) InputGen.cpp
 	@clear
