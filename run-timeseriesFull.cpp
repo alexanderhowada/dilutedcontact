@@ -16,8 +16,8 @@ int main(int Nargs, char* Inputs[]){
  std::random_device SeedGen;
  _MPI_vector_<unsigned int> Seed(1);
 
- const unsigned int NSimul = 1UL<<8;
-// const unsigned int NSimul = 1;
+// const unsigned int NSimul = 1UL<<8;
+ const unsigned int NSimul = 2;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
 		Seed[0] = SeedGen();
@@ -39,7 +39,7 @@ int main(int Nargs, char* Inputs[]){
  else{
 	Seed.Recv(0, 0);
 	_2DDilutedContact_ Simul(Seed[0]);
-	Simul.Set_Init_infec_prob(0.85);
+	Simul.Set_Init_infec_prob(1.0);
 	_Parallelize_CondTimeSeries_Exp_ Parallel_Simul(+Simul, Inputs[3], rank, size);
 	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
