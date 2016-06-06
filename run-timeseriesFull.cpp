@@ -39,7 +39,7 @@ int main(int Nargs, char* Inputs[]){
  else{
 	Seed.Recv(0, 0);
 	_2DDilutedContact_ Simul(Seed[0]);
-	Simul.Set_Init_infec_prob(0.2);
+	Simul.Set_Init_infec_prob(0.05);
 	_Parallelize_CondTimeSeries_Exp_ Parallel_Simul(+Simul, Inputs[3], rank, size);
 	Parallel_Simul.Set_NTS_perSlave(NSimul);
 	Parallel_Simul.run();
