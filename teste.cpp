@@ -19,7 +19,7 @@ int main(int Nargs, char *Input[]){
  SiSimul.Parameters.Scan(Inputs, "%lf", "%*c");
  SiSimul.Parameters.Print(stdout, "%lf", " ");
  printf("\n");
- unsigned long long NSimul = 100;
+ long long NSimul = 1;
 // double tau = SiSimul.Parameters[5];
  for(; NSimul; NSimul--){
 	SiSimul.Set_Parameters();
