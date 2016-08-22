@@ -17,7 +17,7 @@ int main(int Nargs, char* Inputs[]){
  _MPI_vector_<unsigned int> Seed(1);
 
 // const unsigned int NSimul = 1UL<<8;
- const unsigned int NSimul = 32;
+ const unsigned int NSimul = 1;
  if(rank == 0){
 	for(int process = 1; process < size; process++){
 		Seed[0] = SeedGen();
